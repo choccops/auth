@@ -1,0 +1,59 @@
+services:
+  auth:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    container_name: auth 
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: auth
+      POSTGRES_PASSWORD: serious-password 
+      POSTGRES_DB: auth 
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+
+  postgres:
+    image: postgres:15
+    container_name: postgres 
+    environment:
+      POSTGRES_USER: auth 
+      POSTGRES_PASSWORD: serious-password 
+      POSTGRES_DB: auth
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "auth"]
+      interval: 5s
+      retries: 5
+
+  migrations:
+    image: golang:1.23.5-alpine
+    working_dir: /migrations
+    container_name: migrations 
+    volumes:
+      - ./migrations:/migrations
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: auth 
+      POSTGRES_PASSWORD: serious-password 
+      POSTGRES_DB: auth 
+    command: >
+      sh -c "
+      go install github.com/pressly/goose/v3/cmd/goose@latest &&
+      goose postgres 'postgres://auth:serious-password@postgres:5432/auth?sslmode=disable' up
+      "
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
