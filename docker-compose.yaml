@@ -15,6 +15,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+
   postgres:
     image: postgres:15
     container_name: postgres 
