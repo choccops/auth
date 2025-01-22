@@ -1,18 +1,28 @@
 services:
+  binaries:
+    image: golang:1.23.5-alpine
+    container_name: binaries 
+    volumes:
+      - go_binaries:/go/bin
+    command: >
+      sh -c "
+        go install github.com/bokwoon95/wgo@latest &&
+        go install github.com/pressly/goose/v3/cmd/goose@latest
+      "
+
   auth:
     image: golang:1.23.5-alpine
     working_dir: /usr/local/src/auth
     container_name: auth 
     volumes:
       - ./:/usr/local/src/auth
-    command: >
-      sh -c "
-        go install github.com/bokwoon95/wgo@latest &&
-        wgo run main.go
-      "
+      - go_binaries:/go/bin
+    command: sh -c "wgo run main.go"
     ports:
       - "3000:3000"
     depends_on:
+      binaries:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
       migrations:
@@ -39,19 +49,19 @@ services:
     working_dir: /usr/local/src/auth
     container_name: migrations 
     volumes:
+      - go_binaries:/go/bin
       - ./migrations:/usr/local/src/auth/migrations
     environment:
       GOOSE_DBSTRING: "postgresql://auth:serious-password@postgres:5432/auth"
       GOOSE_DRIVER: "postgres"
       GOOSE_MIGRATION_DIR: "./migrations"
-    command: >
-      sh -c "
-        go install github.com/pressly/goose/v3/cmd/goose@latest &&
-        goose up
-      "
+    command: sh -c "goose up"
     depends_on:
+      binaries:
+        condition: service_completed_successfully
       postgres:
         condition: service_healthy
 
 volumes:
+  go_binaries:
   postgres_data:
