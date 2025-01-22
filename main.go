@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/joho/godotenv"
 )
 
 type User struct {
@@ -20,6 +21,11 @@ type User struct {
 }
 
 func main() {
+	/** local development */
+	if "" == os.Getenv("ENV") {
+		godotenv.Load()
+	}
+
 	/** postgres connection */
 	postgres, err := pgxpool.New(context.Background(), os.Getenv("POSTGRES_URI"))
 
@@ -51,6 +57,22 @@ func main() {
 
 		return c.JSON(fiber.Map{
 			"users": users,
+		})
+	})
+
+	app.Post("/signup", func(c *fiber.Ctx) error {
+		request := struct {
+			Username string `json:"username"`
+			Password string `json:"password"`
+		}{}
+
+		if err := c.BodyParser(&request); err != nil {
+			return err
+		}
+
+		return c.JSON(fiber.Map{
+			"username": request.Username,
+			"password": request.Password,
 		})
 	})
 

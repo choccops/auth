@@ -1,19 +1,34 @@
 services:
+  # auth:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "3000:3000"
+  #   container_name: auth 
+  #   environment:
+  #     POSTGRES_URI: postgresql://auth:serious-password@postgres:5432/auth
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     migrations:
+  #       condition: service_completed_successfully
   auth:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: golang:1.23.5-alpine
+    working_dir: /usr/local/src/auth
+    container_name: auth 
+    volumes:
+      - ./:/usr/local/src/auth
+    command: >
+      sh -c "
+        go install github.com/bokwoon95/wgo@latest &&
+        wgo run main.go
+      "
     ports:
       - "3000:3000"
-    container_name: auth 
-    environment:
-      POSTGRES_URI: postgresql://auth:serious-password@postgres:5432/auth
     depends_on:
       postgres:
         condition: service_healthy
-      migrations:
-        condition: service_completed_successfully
-
   postgres:
     image: postgres:15
     container_name: postgres 
@@ -32,20 +47,18 @@ services:
 
   migrations:
     image: golang:1.23.5-alpine
-    working_dir: /migrations
+    working_dir: /usr/local/src/auth
     container_name: migrations 
     volumes:
-      - ./migrations:/migrations
+      - ./migrations:/usr/local/src/auth/migrations
     environment:
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: auth 
-      POSTGRES_PASSWORD: serious-password 
-      POSTGRES_DB: auth 
+      GOOSE_DBSTRING: "postgresql://auth:serious-password@postgres:5432/auth"
+      GOOSE_DRIVER: "postgres"
+      GOOSE_MIGRATION_DIR: "./migrations"
     command: >
       sh -c "
       go install github.com/pressly/goose/v3/cmd/goose@latest &&
-      goose postgres 'postgres://auth:serious-password@postgres:5432/auth?sslmode=disable' up
+      goose up
       "
     depends_on:
       postgres:
