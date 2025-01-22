@@ -1,0 +1,19 @@
+name: check-version 
+
+on:
+  pull_request:
+    branches:
+      - master 
+
+permissions:
+  pull-requests: write
+
+jobs:
+
+  check-version:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check-version
+        uses: o0th/action-check-version@v1.0.0

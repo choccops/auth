@@ -15,6 +15,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const Service = "auth"
+const Version = "0.0.0"
+
 type User struct {
 	ID        int       `json:"id" db:"id"`
 	Username  string    `json:"username" db:"username"`
@@ -67,10 +70,9 @@ func main() {
 	app := fiber.New()
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		version := os.Getenv("VERSION")
 		return c.JSON(fiber.Map{
-			"service": "auth",
-			"version": version,
+			"service": Service,
+			"version": Version,
 		})
 	})
 
