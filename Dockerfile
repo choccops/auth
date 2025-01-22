@@ -1,5 +1,5 @@
 # Builder
-FROM golang:1.23.5-alpine AS builder
+FROM arm64v8/golang:1.23.5-alpine3.21 AS builder
 
 WORKDIR /usr/local/src/auth
 
@@ -9,10 +9,10 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o auth
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o auth
 
 # Binary
-FROM alpine:latest
+FROM arm64v8/alpine:3.21
 
 WORKDIR /usr/local/bin/
 
