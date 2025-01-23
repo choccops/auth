@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"database/sql"
+	"embed"
 	"fmt"
 	"os"
 	"regexp"
@@ -11,12 +13,17 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
+	"github.com/pressly/goose/v3"
 	"golang.org/x/crypto/bcrypt"
 )
 
 const Service = "auth"
-const Version = "0.1.12"
+const Version = "0.1.13"
+
+//go:embed migrations/*.sql
+var embedMigrations embed.FS
 
 type User struct {
 	ID        int       `json:"id" db:"id"`
@@ -65,6 +72,28 @@ func main() {
 	}
 
 	defer postgres.Close()
+
+	/** migrations */
+	db, err := sql.Open("pgx", os.Getenv("POSTGRES_URI"))
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error wrapping pgx: %v\n", err)
+		os.Exit(1)
+	}
+
+	defer db.Close()
+
+	goose.SetBaseFS(embedMigrations)
+
+	if err := goose.SetDialect("postgres"); err != nil {
+		fmt.Fprintf(os.Stderr, "Error setting dialeact: %v\n", err)
+		os.Exit(1)
+	}
+
+	if err := goose.Up(db, "migrations"); err != nil {
+		fmt.Fprintf(os.Stderr, "Error during migrations: %v\n", err)
+		os.Exit(1)
+	}
 
 	/** fiber */
 	app := fiber.New()

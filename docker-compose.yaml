@@ -6,8 +6,7 @@ services:
       - go_binaries:/go/bin
     command: >
       sh -c "
-        go install github.com/bokwoon95/wgo@latest &&
-        go install github.com/pressly/goose/v3/cmd/goose@latest
+        go install github.com/bokwoon95/wgo@latest
       "
 
   auth:
@@ -25,8 +24,6 @@ services:
         condition: service_completed_successfully
       postgres:
         condition: service_healthy
-      migrations:
-        condition: service_completed_successfully
 
   postgres:
     image: postgres:15
@@ -43,24 +40,6 @@ services:
       test: ["CMD", "pg_isready", "-U", "auth"]
       interval: 5s
       retries: 5
-
-  migrations:
-    image: golang:1.23.5-alpine
-    working_dir: /usr/local/src/auth
-    container_name: migrations 
-    volumes:
-      - go_binaries:/go/bin
-      - ./migrations:/usr/local/src/auth/migrations
-    environment:
-      GOOSE_DBSTRING: "postgresql://auth:serious-password@postgres:5432/auth"
-      GOOSE_DRIVER: "postgres"
-      GOOSE_MIGRATION_DIR: "./migrations"
-    command: sh -c "goose up"
-    depends_on:
-      binaries:
-        condition: service_completed_successfully
-      postgres:
-        condition: service_healthy
 
 volumes:
   go_binaries:
