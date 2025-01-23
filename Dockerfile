@@ -8,6 +8,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY *.go ./
+COPY ./migrations ./migrations
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o /usr/local/bin/auth
 
@@ -17,7 +18,6 @@ FROM --platform=$BUILDPLATFORM alpine:3.21
 WORKDIR /usr/local/bin/
 
 COPY --from=builder /usr/local/bin/auth ./
-COPY ./migrations ./migrations
 
 EXPOSE 3000
 
