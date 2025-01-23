@@ -19,6 +19,7 @@ WORKDIR /usr/local/bin/
 
 COPY --from=builder /go/bin/goose ./
 COPY --from=builder /usr/local/bin/auth ./
+COPY ./migrations ./
 
 EXPOSE 3000
 
