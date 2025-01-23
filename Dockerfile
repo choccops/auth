@@ -24,4 +24,4 @@ COPY ./migrations ./migrations
 
 EXPOSE 3000
 
-CMD ["./goose up && ./auth"]
+CMD ["sh", "-c", "./goose up && ./auth"]
