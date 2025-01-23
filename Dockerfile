@@ -18,6 +18,7 @@ FROM --platform=$BUILDPLATFORM alpine:3.21
 WORKDIR /usr/local/bin/
 
 COPY --from=builder /usr/local/bin/auth ./
+COPY --from=builder /usr/local/src/auth/migrations ./migrations
 
 EXPOSE 3000
 
