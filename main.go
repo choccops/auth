@@ -16,7 +16,7 @@ import (
 )
 
 const Service = "auth"
-const Version = "0.1.9"
+const Version = "0.1.10"
 
 type User struct {
 	ID        int       `json:"id" db:"id"`
