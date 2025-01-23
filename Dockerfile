@@ -23,4 +23,4 @@ COPY ./migrations ./migrations
 
 EXPOSE 3000
 
-CMD ["./goose up && ./auth"]
+CMD ["/usr/local/bin/goose up && /usr/local/bin/auth"]
