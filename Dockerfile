@@ -18,7 +18,7 @@ FROM  --platform=$BUILDPLATFORM alpine:3.21
 
 WORKDIR /usr/local/bin/
 
-COPY --from=builder /go/bin/goose ./
+COPY --from=builder /go/bin/linux_arm64/goose ./
 COPY --from=builder /usr/local/bin/auth ./
 COPY ./migrations ./migrations
 
