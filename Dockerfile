@@ -9,15 +9,17 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o auth
+RUN go install github.com/pressly/goose/v3/cmd/goose@latest
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o /usr/local/bin/auth
 
 # Binary
 FROM arm64v8/alpine:3.21
 
 WORKDIR /usr/local/bin/
 
-COPY --from=builder /usr/local/src/auth/auth ./
+COPY --from=builder /go/bin/goose ./
+COPY --from=builder /usr/local/bin/auth ./
 
 EXPOSE 3000
 
-CMD ["./auth"]
+CMD ["./goose up && ./auth"]

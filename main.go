@@ -16,7 +16,7 @@ import (
 )
 
 const Service = "auth"
-const Version = "0.1.0"
+const Version = "0.1.1"
 
 type User struct {
 	ID        int       `json:"id" db:"id"`
@@ -255,7 +255,7 @@ func main() {
 			})
 		}
 
-		user, err := pgx.CollectOneRow(row, pgx.RowToStructByPos[User])
+		user, err := pgx.CollectOneRow(row, pgx.RowToStructByName[User])
 
 		if err != nil {
 			if err == pgx.ErrNoRows {
