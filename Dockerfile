@@ -11,7 +11,7 @@ RUN go mod download
 
 COPY *.go ./
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /usr/local/bin/auth
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o /usr/local/bin/auth
 
 # Binary
 FROM  --platform=$BUILDPLATFORM alpine:3.21
