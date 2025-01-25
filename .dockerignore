@@ -1,1 +1,7 @@
+.git
+.gitignore
+
+Dockerfile
+docker-compose.yaml
+
 keys

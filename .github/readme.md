@@ -18,10 +18,6 @@ VERSION="0.0.0"
 POSTGRES_URI="postgresql://auth:serious-password@postgres:5432/auth"
 PRIVATE_KEY="./keys/private.pem"
 PUBLIC_KEY="./keys/public.pem"
-
-GOOSE_DBSTRING="postgresql://auth:serious-password@postgres:5432/auth"
-GOOSE_DRIVER="postgres"
-GOOSE_MIGRATION_DIR="./migrations"
 ```
 
 Start the service
